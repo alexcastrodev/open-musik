@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Musik" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="Musik">
+    <meta name="theme-color" content="#f97316">
+    <link rel="manifest" href="/manifest.json">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_variables", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_layout", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_sidebar", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_buttons", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_songs", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_playlists", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_player", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_mobile", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_modals", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "_jobs", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <script nonce="<%= request.content_security_policy_nonce %>">
+      // Apply saved theme immediately — before any paint
+      (function() {
+        document.documentElement.dataset.theme = localStorage.getItem('musik-theme') || 'dark';
+      })();
+
+      // Global toggle — works across Turbo navigations, no Stimulus needed
+      function toggleTheme() {
+        var html = document.documentElement;
+        var next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        html.dataset.theme = next;
+        localStorage.setItem('musik-theme', next);
+      }
+    </script>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application' %>
+    <!--
+      If using a TypeScript entrypoint file:
+        vite_typescript_tag 'application'
+
+      If using a .jsx or .tsx entrypoint, add the extension:
+        vite_javascript_tag 'application.jsx'
+
+      Visit the guide for more information: https://vite-ruby.netlify.app/guide/rails
+    -->
+
+  </head>
+
+  <body data-controller="app player pwa-shortcuts" class="app-body">
+
+    <%# Sidebar (desktop) %>
+    <nav class="sidebar">
+      <div class="sidebar-top">
+        <%= link_to songs_path, class: "sidebar-logo" do %>
+          <div class="sidebar-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <defs>
+                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fff" stop-opacity="0.95"/>
+                  <stop offset="100%" stop-color="#ffe0c0" stop-opacity="0.85"/>
+                </linearGradient>
+              </defs>
+              <circle cx="9" cy="18" r="3" fill="url(#logoGrad)"/>
+              <circle cx="15" cy="15" r="3" fill="url(#logoGrad)"/>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+              <polyline points="12 3 20 3 20 11" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="sidebar-logo-text">Musik</span>
+        <% end %>
+
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+          <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">Menu</p>
+        <%= link_to songs_path, class: "sidebar-link #{controller_name == 'songs' ? 'active' : ''}" do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Início
+        <% end %>
+        <%= link_to playlists_path, class: "sidebar-link #{controller_name == 'playlists' ? 'active' : ''}" do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Biblioteca
+        <% end %>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <p class="sidebar-label">Suas Playlists</p>
+      <div class="sidebar-playlists">
+        <% Playlist.order(:name).each do |pl| %>
+          <%= link_to playlist_path(pl), class: "sidebar-playlist-link" do %>
+            <span class="sidebar-playlist-dot"></span>
+            <%= pl.name %>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
+
+    <%# Main content %>
+    <main class="main-content" id="main-content">
+      <div class="main-inner">
+        <% if notice %>
+          <div class="flash flash-notice" data-controller="flash"><%= notice %></div>
+        <% end %>
+        <%= yield %>
+      </div>
+    </main>
+
+    <%# Player — data-turbo-permanent preserves audio state across Turbo navigations %>
+    <%= render "shared/player", song: nil, autoplay: false %>
+
+    <%# Mobile bottom nav %>
+    <nav class="mobile-nav">
+      <%= link_to songs_path, class: "mobile-nav-link #{controller_name == 'songs' ? 'active' : ''}" do %>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>Início</span>
+      <% end %>
+      <%= link_to playlists_path, class: "mobile-nav-link #{controller_name == 'playlists' ? 'active' : ''}" do %>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        <span>Biblioteca</span>
+      <% end %>
+      <button class="mobile-nav-link" onclick="toggleTheme()" aria-label="Alternar tema">
+        <svg class="theme-icon-moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="theme-icon-sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span>Tema</span>
+      </button>
+    </nav>
+
+  </body>
+</html>

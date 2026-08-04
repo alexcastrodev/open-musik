@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  --color-accent: #1db954;
+  --color-accent-hover: #1ed760;
+  --color-bg: #0a0a0a;
+  --color-bg-elevated: #121212;
+  --color-bg-card: #181818;
+  --color-bg-card-hover: #282828;
+  --color-text-muted: #a7a7a7;
+  --color-text-dim: #6a6a6a;
+  --color-danger: #e94560;
+}

@@ -1,0 +1,2 @@
+[jwt.filer_signing]
+key = "musik-dev-signing-key"

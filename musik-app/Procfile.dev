@@ -1,0 +1,4 @@
+web: bundle exec puma -C config/puma.rb
+css: bin/rails tailwindcss:watch
+jobs: bundle exec sidekiq -C config/sidekiq.yml
+vite: bin/vite dev

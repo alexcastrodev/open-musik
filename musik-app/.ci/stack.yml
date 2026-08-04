@@ -1,0 +1,152 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  web:
+    image: pizito:5001/musik:latest
+    ports:
+      - "3000:80"
+    logging: *default-logging
+    environment:
+      - RAILS_ENV=production
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - WEB_CONCURRENCY=1
+      - RAILS_MAX_THREADS=5
+      - RAILS_LOG_LEVEL=warn
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_URL=redis://valkey:6379/0
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_PUBLIC_URL=${S3_PUBLIC_URL}
+      - CABLE_ALLOWED_ORIGINS=${CABLE_ALLOWED_ORIGINS:-https://musik.kurz.fyi}
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+    networks:
+      - proxy_net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 640M
+        reservations:
+          cpus: '0.5'
+
+  worker:
+    image: pizito:5001/musik:latest
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    logging: *default-logging
+    environment:
+      - RAILS_ENV=production
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - JOB_CONCURRENCY=5
+      - RAILS_LOG_LEVEL=warn
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_URL=redis://valkey:6379/0
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_PUBLIC_URL=${S3_PUBLIC_URL}
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - YTDLP_JS_RUNTIME=deno
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 1073741824
+    networks:
+      - proxy_net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2.5'
+          memory: 3072M
+
+  db:
+    image: postgres:18
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - effective_cache_size=768MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - max_connections=40
+    logging: *default-logging
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - type: bind
+        source: /mnt/ssd/@docker/musik/postgres
+        target: /var/lib/postgresql
+    networks:
+      - proxy_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command:
+      - valkey-server
+      - --maxmemory
+      - 96mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - "900"
+      - "1"
+    logging: *default-logging
+    volumes:
+      - type: bind
+        source: /mnt/ssd/@docker/musik/valkey
+        target: /data
+    networks:
+      - proxy_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
+networks:
+  proxy_net:
+    external: true

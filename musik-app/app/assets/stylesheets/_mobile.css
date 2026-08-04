@@ -1,0 +1,185 @@
+/* ===== MOBILE NAV (hidden on desktop) ===== */
+.mobile-nav { display: none; }
+
+/* ===== MOBILE NAV LINK ===== */
+.mobile-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  transition: color var(--transition);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.mobile-nav-link:hover { color: var(--text-muted); }
+.mobile-nav-link.active { color: var(--accent); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 220px; }
+  .main-inner { padding: 24px 24px 40px; }
+}
+
+@media (max-width: 768px) {
+  .app-body {
+    grid-template-rows: 1fr auto var(--nav-h);
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar { display: none; }
+
+  .main-content {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .player {
+    grid-row: 2;
+    grid-column: 1;
+    padding: 0 16px;
+    gap: 12px;
+    position: relative;
+    min-height: 64px;
+    transition: opacity var(--transition);
+  }
+
+  /* when no music: collapse so it takes no visual space */
+  .player.player-hidden {
+    padding: 0;
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+    border-top: none;
+    opacity: 0;
+  }
+
+  .mobile-nav {
+    grid-row: 3;
+    grid-column: 1;
+    display: flex;
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    transition: background var(--transition);
+  }
+
+  .main-inner { padding: 20px 16px 32px; }
+  .page-title { font-size: 1.8rem; }
+
+  .songs-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .playlists-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+
+  /* mobile player: track left, progress+play center/right */
+  .player-track {
+    flex: 1;
+    min-width: 0;
+    gap: 10px;
+  }
+  .player-cover { width: 44px; height: 44px; }
+
+  .player-center {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  /* hide shuffle/repeat/prev/next — keep play button */
+  .player-btn-shuffle,
+  .player-btn-prev,
+  .player-btn-next,
+  .player-btn-repeat { display: none; }
+
+  /* hide mini-bar queue button — expanded player has its own queue button */
+  .player-queue-btn { display: none; }
+
+  /* show queue button inside expanded player */
+  .player-expanded-queue-btn { display: inline-flex; }
+
+  .player-play-btn { width: 36px; height: 36px; }
+
+  /* slim progress bar beneath everything */
+  .player-progress-wrap {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 0;
+    gap: 0;
+  }
+  .player-time { display: none; }
+  .player-progress-bar {
+    height: 2px;
+    border-radius: 0;
+  }
+  .player-progress-bar:hover { height: 3px; }
+  .player-progress-thumb { display: none; }
+
+  /* queue panel: full-width on mobile */
+  .player-queue {
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    height: 60vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: translateY(100%);
+  }
+  .player-queue.is-open { transform: translateY(0); }
+
+  /* shelf: smaller cards + scroll snap on mobile */
+  .shelf-row {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .shelf-row .song-card {
+    flex: 0 0 130px;
+    width: 130px;
+    scroll-snap-align: start;
+  }
+  .shelf-card {
+    flex: 0 0 120px;
+    scroll-snap-align: start;
+  }
+  .shelf-card-cover {
+    width: 104px;
+    height: 104px;
+  }
+
+  /* icon-btn: minimum 44px touch target (Apple HIG) */
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .playlist-hero { flex-direction: column; gap: 20px; padding: 24px 0 32px; }
+  .playlist-hero-cover { width: 160px; height: 160px; }
+
+  .table-row { grid-template-columns: 40px 44px 1fr 64px 36px; gap: 10px; }
+  .table-header { grid-template-columns: 40px 44px 1fr 64px 36px; gap: 10px; }
+  .table-album { display: none; }
+  /* always show remove btn on mobile (no hover) */
+  .table-remove { opacity: 1; }
+  /* always show play btn on touch (replaces number) */
+  .table-num { opacity: 0; }
+  .table-play-btn { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .songs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .playlists-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .shelf-row .song-card { flex: 0 0 120px; width: 120px; }
+  .shelf-card { flex: 0 0 110px; }
+  .shelf-card-cover { width: 94px; height: 94px; }
+}

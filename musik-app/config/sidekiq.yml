@@ -1,0 +1,21 @@
+# Configuração do worker Sidekiq.
+#
+# Diferente do Solid Queue, o Sidekiq não ordena por prioridade numérica dentro
+# de uma fila: a prioridade vem da ORDEM das filas aqui (a primeira é drenada
+# antes das seguintes). Por isso a fila :discord (skip/stop/play do bot) fica no
+# topo, garantindo baixa latência sobre imports/uploads do resto.
+#
+# :playlists isola o enfileiramento em massa de playlists (Enqueue{Youtube,Spotify}
+# TracksJob): são jobs longos (resolve faixa a faixa) que, na :default, prendiam o
+# CacheProviderSongJob (download da próxima faixa) atrás deles. Fica abaixo da
+# :default pra nunca atrasar um download/upload já em andamento. Os jobs se
+# re-enfileiram em lotes (ver Enqueue*TracksJob), então cedem a thread entre lotes.
+:concurrency: <%= ENV.fetch("JOB_CONCURRENCY", 5) %>
+
+:queues:
+  - discord
+  - default
+  - playlists
+
+production:
+  :concurrency: <%= ENV.fetch("JOB_CONCURRENCY", 5) %>

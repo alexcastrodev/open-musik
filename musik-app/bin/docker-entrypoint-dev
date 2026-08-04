@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+bundle check || bundle install
+
+if [ ! -d node_modules/.bin ]; then
+  npm ci
+fi
+
+exec "${@}"

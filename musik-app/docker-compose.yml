@@ -1,0 +1,98 @@
+services:
+  db:
+    image: postgres:18
+    ports:
+      - "15432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=musik_development
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  valkey:
+    image: valkey/valkey:8.1.4
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    ports:
+      - "13001:3001"
+    env_file:
+      - .env.development
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://valkey:6379/0
+      - PORT=3001
+      - S3_ENDPOINT=http://seaweedfs:8333
+    depends_on:
+      - db
+      - valkey
+      - seaweedfs
+    entrypoint: ["/rails/bin/docker-entrypoint-dev"]
+
+  console-dev:
+    image: musik-web
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    command: ["./bin/rails", "server", "-b", "0.0.0.0"]
+    ports:
+      - "13001:3001"
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env.development
+    environment:
+      - RAILS_ENV=development
+      - DB_HOST=db
+      - REDIS_URL=redis://valkey:6379/0
+      - S3_ENDPOINT=http://seaweedfs:8333
+    depends_on:
+      - db
+      - valkey
+      - seaweedfs
+    entrypoint: ["/rails/bin/docker-entrypoint-dev"]
+
+  worker:
+    image: musik-web
+    entrypoint: ["/rails/bin/docker-entrypoint-dev"]
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    env_file:
+      - .env.development
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://valkey:6379/0
+      - S3_ENDPOINT=http://seaweedfs:8333
+    depends_on:
+      - db
+      - valkey
+      - seaweedfs
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    ports:
+      - "9333:9333"
+      - "8333:8333"
+      - "19333:19333"
+    command: server -s3 -s3.port=8333 -s3.iam.config=/config/s3.json -master.volumeSizeLimitMB=256
+    volumes:
+      - seaweedfs_data:/data
+      - ./docker/seaweedfs/s3.json:/config/s3.json
+      - ./docker/seaweedfs/security.toml:/etc/seaweedfs/security.toml
+
+volumes:
+  postgres_data:
+  bundle_cache:
+  node_modules:
+  seaweedfs_data:

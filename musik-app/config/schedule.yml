@@ -1,0 +1,24 @@
+# Jobs recorrentes para o sidekiq-cron (substitui o config/recurring.yml do
+# Solid Queue). Carregado em config/initializers/sidekiq.rb.
+#
+# O clear_solid_queue_finished_jobs foi removido: o Sidekiq guarda o estado no
+# Redis e expira os jobs concluídos sozinho, sem tabela para limpar.
+purge_temporary_songs:
+  cron: "0 4 * * *" # todo dia às 4h
+  class: PurgeTemporarySongsJob
+  queue: default
+
+# Wrapped do servidor (Épico 2, item 8): gera a retrospectiva do período
+# ANTERIOR. Mensal no dia 1; anual em 1 de janeiro. Cada wrapped fica pendente
+# até um bot entregá-lo no Discord (via heartbeat).
+generate_monthly_wrapped:
+  cron: "0 9 1 * *" # dia 1 de cada mês, 9h
+  class: GenerateWrappedJob
+  queue: default
+  args: [ "month" ]
+
+generate_yearly_wrapped:
+  cron: "0 10 1 1 *" # 1 de janeiro, 10h
+  class: GenerateWrappedJob
+  queue: default
+  args: [ "year" ]

@@ -1,0 +1,11 @@
+# Override pra rodar os testes Rails no container SEM publicar a porta do Postgres
+# (15432 no host conflita com o reboot-news-app — ver memória do projeto). O `web`
+# e o `docker compose run` alcançam o `db`/`valkey` pela rede interna por nome de
+# serviço, então não precisa bind de porta. Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm \
+#     -e RAILS_ENV=test web bin/rails db:test:prepare test
+services:
+  db:
+    ports: !reset []
+  web:
+    ports: !reset []
