@@ -9,7 +9,5 @@ services:
       - ~/icecast/.env
     environment:
       - OPUS_BITRATE=${OPUS_BITRATE:-128k}
-      - ICECAST_SOURCE_PASS
-      - ICECAST_ADMIN_PASS
     volumes:
       - ./songs:/lofi:ro
