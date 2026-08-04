@@ -14,6 +14,8 @@ Ele é composto por 2 tipos de Bot:
 
 1. Conseguir tocar a música e operar outros bots de música (como se fosse workers). Atualmente eu tenho 2 bots de música, se o primeiro estiver ocupado, ele invoca o segundo para tocar.
 
+![bot-lofi](./.assets/multiple.png)
+
 2. Quando não tenho a música, ele tem que conseguir buscar no Youtube e tocar.
 
 3. Ter um processo de cache de músicas, para não precisar ficar baixando a mesma música toda hora. ( com TTL de 1 semana )

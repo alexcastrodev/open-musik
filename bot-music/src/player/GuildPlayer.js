@@ -186,6 +186,7 @@ export class GuildPlayer {
       console.log(`[player ${this.guildId}] [origem:rails-cache] começou a tocar do cache do Rails (S3, ${src.label}): ${title}`);
       this.#startResource(item, src);
       this.currentFromSource = false;
+      this.#refreshPanelLocally(item);
       this.#maybeDiscoverNext().catch(() => {});
       return;
     }
@@ -198,12 +199,14 @@ export class GuildPlayer {
       this.#startResource(item, src);
       this.currentFromSource = true;
       if (this.discoverEnabled) this.discoverPending = true;
+      this.#refreshPanelLocally(item);
       return;
     }
 
     console.log(`[player ${this.guildId}] [origem:musica-espera] fonte não resolveu; tocando música de espera até o cache do Rails ficar pronto: ${title}`);
     this.#startResource(item, this._holdStream());
     this.awaitingCache = true;
+    this.#refreshPanelLocally(item);
 
     try {
       await this.#waitForCacheAndPlay(gen, playable.item_id, item);
@@ -518,6 +521,14 @@ export class GuildPlayer {
   async #refreshPanel(queue = null) {
     if (!this.refreshPanel) return;
     await this.refreshPanel(this.guildId, this.channelId, queue);
+  }
+
+  // Atualiza o painel com o item que o bot JÁ sabe que está tocando, sem
+  // esperar a fila do Rails confirmar (ela é assíncrona/pode atrasar — ver
+  // #syncWithQueue). Sem isso, o painel ficava vazio/com botões desabilitados
+  // enquanto a API não refletia a faixa que já estava tocando de verdade.
+  #refreshPanelLocally(item) {
+    this.#refreshPanel({ current: item, upcoming: [] }).catch(() => {});
   }
 
   _holdStream() {
