@@ -1,0 +1,56 @@
+<icecast>
+    <!-- Config mínima do Icecast pro relay lo-fi. Só serve os 5 mounts Opus
+         empurrados pelos ffmpeg locais (ver supervisord.conf). As senhas vêm do
+         entrypoint.sh, que reescreve os placeholders @SOURCE_PASS@/@ADMIN_PASS@
+         a partir das env vars antes de subir o Icecast. -->
+
+    <limits>
+        <!-- Cada bot é 1 cliente por mount; com 5 estações e alguns workers do
+             pool, 100 sobra. Os 5 ffmpeg locais são as únicas "sources".
+             IMPORTANTE: <sources> precisa ser >= número de estações em
+             supervisord.conf, senão o Icecast rejeita a source extra (404). -->
+        <clients>100</clients>
+        <sources>5</sources>
+        <queue-size>524288</queue-size>
+        <client-timeout>30</client-timeout>
+        <header-timeout>15</header-timeout>
+        <source-timeout>10</source-timeout>
+        <burst-on-connect>1</burst-on-connect>
+        <!-- Burst pequeno: o bot começa a ouvir rápido sem encher buffer. -->
+        <burst-size>65536</burst-size>
+    </limits>
+
+    <authentication>
+        <!-- Source = ffmpeg local empurrando áudio (1 por estação). -->
+        <source-password>@SOURCE_PASS@</source-password>
+        <admin-user>admin</admin-user>
+        <admin-password>@ADMIN_PASS@</admin-password>
+    </authentication>
+
+    <listen-socket>
+        <port>8000</port>
+    </listen-socket>
+
+    <!-- Mountpoints: deixados implícitos (o ffmpeg cria ao conectar). Opus em
+         contêiner Ogg → o bot consome como StreamType.OggOpus (pass-through). -->
+
+    <fileserve>0</fileserve>
+
+    <paths>
+        <logdir>/var/log/icecast2</logdir>
+        <webroot>/usr/share/icecast2/web</webroot>
+        <adminroot>/usr/share/icecast2/admin</adminroot>
+        <pidfile>/tmp/icecast.pid</pidfile>
+    </paths>
+
+    <logging>
+        <!-- stderr/stdout: o supervisord/Docker captura. Nível 2 = warnings. -->
+        <loglevel>2</loglevel>
+        <logsize>10000</logsize>
+    </logging>
+
+    <security>
+        <!-- Não faz setuid: o container já roda como usuário dedicado. -->
+        <chroot>0</chroot>
+    </security>
+</icecast>

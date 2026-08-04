@@ -1,0 +1,28 @@
+services:
+  bot-musik:
+    build: .
+    image: musik-bot:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - OPUS_BITRATE=128000
+    volumes:
+      - /mnt/ssd/@docker/musik/secrets/angell.env:/app/.env
+
+  bot-musik-clone-1:
+    image: musik-bot:latest
+    depends_on:
+      - bot-musik
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - OPUS_BITRATE=128000
+    volumes:
+      - /mnt/ssd/@docker/musik/secrets/demon.env:/app/.env
+
+  bot-cache:
+    image: valkey/valkey:8-alpine
+    ports:
+      - "16379:6379"
+    volumes:
+      - ./data:/data

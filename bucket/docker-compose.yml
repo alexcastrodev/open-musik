@@ -1,0 +1,33 @@
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    ports:
+      - "8333:8333"   # S3 API
+      - "9001:9333"   # Master UI / Admin
+      - "8888:8888"   # Filer UI (browser de arquivos)
+    volumes:
+      - /mnt/ssd/@docker/musik/storage/data:/data
+      - /mnt/ssd/@docker/musik/storage/s3.json:/etc/seaweedfs/s3.json:ro
+    command: >
+      server
+      -dir=/data
+      -ip=0.0.0.0
+      -master.port=9333
+      -volume.port=8080
+      -volume.readBufferSizeMB=32
+      -volume.compactionMBps=0
+      -filer
+      -filer.port=8888
+      -s3
+      -s3.port=8333
+      -s3.config=/etc/seaweedfs/s3.json
+    networks:
+      - proxy_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  proxy_net:
+    external: true

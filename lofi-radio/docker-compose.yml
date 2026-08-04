@@ -1,0 +1,14 @@
+services:
+  lofi-relay:
+    build: .
+    image: musik-lofi-relay:latest
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - /mnt/ssd/@docker/musik/icecast/.env
+    environment:
+      - OPUS_BITRATE=${OPUS_BITRATE:-128k}
+      - ICECAST_SOURCE_PASS
+      - ICECAST_ADMIN_PASS
+    volumes:
+      - ./songs:/lofi:ro
