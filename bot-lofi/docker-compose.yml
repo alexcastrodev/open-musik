@@ -5,5 +5,6 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
+      # backup ta em /mnt/ssd/@docker/musik/secrets/bot-lofi.env
       - .env:/app/.env
       - ./data:/app/data
