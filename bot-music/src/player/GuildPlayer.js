@@ -583,6 +583,7 @@ export class GuildPlayer {
 
     if (!current && (!upcoming || upcoming.length === 0)) {
       if (this.keptIdle || this.idleEmpty) return { changed: false, queue };
+      if (this.pendingItemId) return { changed: false, queue };
       if (this.current || this.connection) {
         console.log(`[player ${this.guildId}] fila esvaziada externamente (stop); encerrando`);
         this.stopAndDisconnect();
