@@ -17,8 +17,11 @@ ADMIN_PASS="${ICECAST_ADMIN_PASS:-zedamanga}"
 # separador do sed pra não colidir com caracteres das senhas.
 sed -i "s|@SOURCE_PASS@|${SOURCE_PASS}|; s|@ADMIN_PASS@|${ADMIN_PASS}|" /etc/icecast.xml
 
-# Garante os diretórios de log/pid que o Icecast espera.
+# Garante os diretórios de log/pid que o Icecast espera. O <changeowner> do
+# icecast.xml faz o processo dropar pra icecast2 depois de bindar a porta,
+# então esse usuário precisa poder ler a config e escrever pid/log.
 mkdir -p /var/log/icecast2
-chown -R icecast2:icecast2 /var/log/icecast2 2>/dev/null || true
+chown -R icecast2:icecast2 /var/log/icecast2 /etc/icecast.xml 2>/dev/null || true
+touch /tmp/icecast.pid && chown icecast2:icecast2 /tmp/icecast.pid 2>/dev/null || true
 
 exec supervisord -c /etc/supervisor/supervisord.conf

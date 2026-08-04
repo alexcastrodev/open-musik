@@ -50,7 +50,10 @@
     </logging>
 
     <security>
-        <!-- Não faz setuid: o container já roda como usuário dedicado. -->
         <chroot>0</chroot>
+        <changeowner>
+            <user>icecast2</user>
+            <group>icecast2</group>
+        </changeowner>
     </security>
 </icecast>
