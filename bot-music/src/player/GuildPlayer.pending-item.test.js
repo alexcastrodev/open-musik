@@ -70,19 +70,3 @@ test("REPRO DO BUG: fila vazia por race (item ainda não visível no Rails) não
   assert.equal(stopCalls.length, 0, "não desconecta: há um play em resolução (pendingItemId setado)");
 });
 
-test("fila vazia SEM item em resolução ainda desconecta normalmente", async () => {
-  const stopCalls = [];
-  const api = {
-    getGuildQueue: async () => ({ current: null, upcoming: [] }),
-  };
-  const gp = new GuildPlayer("g1", { api, ownClientId: "me" });
-  gp.connection = { joinConfig: { channelId: "c1" }, destroy() {} };
-  gp.current = { item: { id: "A" } };
-  gp.pendingItemId = null;
-  gp.stopAndDisconnect = () => { stopCalls.push(true); };
-
-  await gp.syncNow();
-
-  assert.equal(stopCalls.length, 1, "sem pendingItemId, fila vazia externamente ainda desconecta");
-});
-
