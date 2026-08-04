@@ -1,0 +1,26 @@
+{
+  "name": "musik-bot-lofi",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bot Discord de rádio lo-fi 24/7 — 5 estações, multi-servidor",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --env-file=.env --dns-result-order=ipv4first src/index.js",
+    "register": "node --env-file=.env src/register-commands.js",
+    "unregister": "node --env-file=.env src/unregister-commands.js",
+    "dev": "node --watch --env-file=.env --dns-result-order=ipv4first src/index.js",
+    "test": "node --test"
+  },
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.19.2",
+    "discord.js": "^14.16.3",
+    "sodium-native": "^5.1.0",
+    "undici": "6.24.1"
+  }
+}

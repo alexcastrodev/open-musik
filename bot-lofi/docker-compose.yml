@@ -1,0 +1,9 @@
+services:
+  bot-lofi:
+    build: .
+    image: musik-bot-lofi:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - .env:/app/.env
+      - ./data:/app/data
